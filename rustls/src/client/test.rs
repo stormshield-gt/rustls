@@ -493,8 +493,8 @@ mod tests {
     struct ServerVerifierWithAuthorityNames(Vec<DistinguishedName>);
 
     impl ServerCertVerifier for ServerVerifierWithAuthorityNames {
-        fn root_hint_subjects(&self) -> Option<&[DistinguishedName]> {
-            Some(self.0.as_slice())
+        fn root_hint_subjects(&self) -> Option<Arc<[DistinguishedName]>> {
+            Some(Arc::from(self.0.clone()))
         }
 
         #[cfg_attr(coverage_nightly, coverage(off))]
