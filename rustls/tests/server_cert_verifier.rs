@@ -332,8 +332,8 @@ impl ServerCertVerifier for ServerCertVerifierWithCasExt {
         self.verifier.requires_raw_public_keys()
     }
 
-    fn root_hint_subjects(&self) -> Option<&[DistinguishedName]> {
+    fn root_hint_subjects(&self) -> Option<Arc<[DistinguishedName]>> {
         println!("ServerCertVerifierWithCasExt::root_hint_subjects() called!");
-        Some(&self.ca_names)
+        Some(Arc::from(self.ca_names.clone()))
     }
 }
