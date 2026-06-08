@@ -2,7 +2,7 @@ use alloc::sync::Arc;
 use alloc::vec::Vec;
 use core::fmt::Debug;
 
-use pki_types::{CertificateDer, ServerName, UnixTime};
+use pki_types::{CertificateDer, DnsName, ServerName, UnixTime};
 
 use crate::enums::SignatureScheme;
 use crate::error::{Error, InvalidMessage};
@@ -201,7 +201,10 @@ pub trait ClientCertVerifier: Debug + Send + Sync {
     /// [RFC 5280 A.1]: https://www.rfc-editor.org/rfc/rfc5280#appendix-A.1
     /// [`CertificateRequest`]: https://datatracker.ietf.org/doc/html/rfc8446#section-4.3.2
     /// [`certificate_authorities`]: https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.4
-    fn root_hint_subjects(&self) -> Arc<[DistinguishedName]>;
+    fn root_hint_subjects(
+        &self,
+        server_name: &Option<DnsName<'static>>,
+    ) -> Arc<[DistinguishedName]>;
 
     /// Verify the end-entity certificate `end_entity` is valid, acceptable,
     /// and chains to at least one of the trust anchors trusted by
@@ -289,7 +292,7 @@ impl ClientCertVerifier for NoClientAuth {
         false
     }
 
-    fn root_hint_subjects(&self) -> Arc<[DistinguishedName]> {
+    fn root_hint_subjects(&self, _: &Option<DnsName<'static>>) -> Arc<[DistinguishedName]> {
         unimplemented!();
     }
 

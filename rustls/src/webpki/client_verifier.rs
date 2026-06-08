@@ -1,5 +1,6 @@
 use alloc::vec::Vec;
 
+use pki_types::DnsName;
 use pki_types::{CertificateDer, CertificateRevocationListDer, UnixTime};
 use webpki::{CertRevocationList, ExpirationPolicy, RevocationCheckDepth, UnknownStatusPolicy};
 
@@ -353,7 +354,7 @@ impl ClientCertVerifier for WebPkiClientVerifier {
         }
     }
 
-    fn root_hint_subjects(&self) -> Arc<[DistinguishedName]> {
+    fn root_hint_subjects(&self, _: &Option<DnsName<'static>>) -> Arc<[DistinguishedName]> {
         Arc::from(self.root_hint_subjects.clone())
     }
 
