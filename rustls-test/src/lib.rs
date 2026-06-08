@@ -30,8 +30,8 @@ use rustls::internal::msgs::codec::{Codec, Reader};
 use rustls::internal::msgs::message::{Message, OutboundOpaqueMessage, PlainMessage};
 use rustls::pki_types::pem::PemObject;
 use rustls::pki_types::{
-    CertificateDer, CertificateRevocationListDer, PrivateKeyDer, PrivatePkcs8KeyDer, ServerName,
-    SubjectPublicKeyInfoDer, UnixTime,
+    CertificateDer, CertificateRevocationListDer, DnsName, PrivateKeyDer, PrivatePkcs8KeyDer,
+    ServerName, SubjectPublicKeyInfoDer, UnixTime,
 };
 use rustls::server::danger::{ClientCertVerified, ClientCertVerifier};
 use rustls::server::{
@@ -1331,7 +1331,7 @@ impl ClientCertVerifier for MockClientVerifier {
         self.mandatory
     }
 
-    fn root_hint_subjects(&self) -> Arc<[DistinguishedName]> {
+    fn root_hint_subjects(&self, _: &Option<DnsName<'static>>) -> Arc<[DistinguishedName]> {
         Arc::from(self.subjects.clone())
     }
 

@@ -34,7 +34,7 @@ use crate::tls12::{self, ConnectionSecrets, Tls12CipherSuite};
 use crate::{ConnectionTrafficSecrets, verify};
 
 mod client_hello {
-    use pki_types::CertificateDer;
+    use pki_types::{CertificateDer, DnsName};
 
     use super::*;
     use crate::common_state::KxState;
@@ -210,7 +210,7 @@ mod client_hello {
                 server_key.get_key(),
                 &self.randoms,
             )?;
-            let doing_client_auth = emit_certificate_req(&mut flight, &self.config)?;
+            let doing_client_auth = emit_certificate_req(&mut flight, &self.config, &cx.data.sni)?;
             emit_server_hello_done(&mut flight);
 
             flight.finish(cx.common);
@@ -400,6 +400,7 @@ mod client_hello {
     fn emit_certificate_req(
         flight: &mut HandshakeFlightTls12<'_>,
         config: &ServerConfig,
+        server_name: &Option<DnsName<'static>>,
     ) -> Result<bool, Error> {
         let client_auth = &config.verifier;
 
@@ -411,7 +412,7 @@ mod client_hello {
 
         let names = config
             .verifier
-            .root_hint_subjects()
+            .root_hint_subjects(server_name)
             .to_vec();
 
         let cr = CertificateRequestPayload {

@@ -38,6 +38,8 @@ use crate::tls13::{
 use crate::{ConnectionTrafficSecrets, compress, rand, verify};
 
 mod client_hello {
+    use pki_types::DnsName;
+
     use super::*;
     use crate::compress::CertCompressor;
     use crate::crypto::SupportedKxGroup;
@@ -378,7 +380,8 @@ mod client_hello {
             )?;
 
             let doing_client_auth = if full_handshake {
-                let client_auth = emit_certificate_req_tls13(&mut flight, &self.config)?;
+                let client_auth =
+                    emit_certificate_req_tls13(&mut flight, &self.config, &cx.data.sni)?;
 
                 if let Some(compressor) = cert_compressor {
                     emit_compressed_certificate_tls13(
@@ -693,6 +696,7 @@ mod client_hello {
     fn emit_certificate_req_tls13(
         flight: &mut HandshakeFlightTls13<'_>,
         config: &ServerConfig,
+        server_name: &Option<DnsName<'static>>,
     ) -> Result<bool, Error> {
         if !config.verifier.offer_client_auth() {
             return Ok(false);
@@ -717,7 +721,7 @@ mod client_hello {
                 },
                 authority_names: match config
                     .verifier
-                    .root_hint_subjects()
+                    .root_hint_subjects(server_name)
                     .as_ref()
                 {
                     &[] => None,
